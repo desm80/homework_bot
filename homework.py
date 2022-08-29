@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-PRACTICUM_TOKEN = os.getenv('TOKEN')
-TELEGRAM_TOKEN = os.getenv('TOKEN')
-TELEGRAM_CHAT_ID = os.getenv('TOKEN')
+PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
@@ -38,7 +38,7 @@ def get_api_answer(current_timestamp):
     except Exception as error:
         print(error)
 
-    homework_statuses = homework_statuses.json()[0].get('status')
+    homework_statuses = homework_statuses.json()#[0].get('status')
     return homework_statuses
 
 
