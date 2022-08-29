@@ -1,3 +1,4 @@
+import os
 import time
 
 import requests
@@ -7,9 +8,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-PRACTICUM_TOKEN = ...
-TELEGRAM_TOKEN = ...
-TELEGRAM_CHAT_ID = ...
+PRACTICUM_TOKEN = os.getenv('TOKEN')
+TELEGRAM_TOKEN = os.getenv('TOKEN')
+TELEGRAM_CHAT_ID = os.getenv('TOKEN')
 
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
@@ -30,11 +31,15 @@ def send_message(bot, message):
 def get_api_answer(current_timestamp):
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp-5000000}
-    homework_statuses = requests.get(
-        ENDPOINT, headers=HEADERS, params=params
-    ).json()
+    try:
+        homework_statuses = requests.get(
+            ENDPOINT, headers=HEADERS, params=params
+        )
+    except Exception as error:
+        print(error)
 
-    ...
+    homework_statuses = homework_statuses.json()[0].get('status')
+    return homework_statuses
 
 
 def check_response(response):
