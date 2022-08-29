@@ -25,7 +25,7 @@ HOMEWORK_STATUSES = {
 
 
 def send_message(bot, message):
-    ...
+    bot.send_message(TELEGRAM_CHAT_ID, message)
 
 
 def get_api_answer(current_timestamp):
@@ -76,10 +76,10 @@ def main():
     while True:
         try:
             response = get_api_answer(current_timestamp)
-
-            ...
-
-            current_timestamp = ...
+            homework = check_response(response)
+            message = parse_status(homework)
+            send_message(bot, message)
+            current_timestamp = response.get('current_date')
             time.sleep(RETRY_TIME)
 
         except Exception as error:
