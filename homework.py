@@ -38,7 +38,7 @@ def get_api_answer(current_timestamp):
     except Exception as error:
         print(error)
 
-    homework_statuses = homework_statuses.json()#[0].get('status')
+    homework_statuses = homework_statuses.json()
     return homework_statuses
 
 
@@ -61,14 +61,13 @@ def parse_status(homework):
 
 
 def check_tokens():
-    ...
+    return True
 
 
 def main():
     """Основная логика работы бота."""
-
-    ...
-
+    if not check_tokens():
+        exit()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
 
@@ -76,7 +75,7 @@ def main():
 
     while True:
         try:
-            response = ...
+            response = get_api_answer(current_timestamp)
 
             ...
 
