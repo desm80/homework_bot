@@ -2,7 +2,6 @@ import logging
 import os
 import sys
 import time
-from http import HTTPStatus
 
 import requests
 import telegram
@@ -62,8 +61,6 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
-    # homework = response.get('homeworks')[0]
-    # return homework
     if type(response) is not dict:
         raise TypeError('Ответ API отличен от словаря')
     try:
@@ -80,21 +77,21 @@ def check_response(response):
 
 
 def parse_status(homework):
+    if 'homework_name' not in homework:
+        raise KeyError('Отсутствует ключ "homework_name" в ответе API')
+    if 'status' not in homework:
+        raise KeyError('Отсутствует ключ "status" в ответе API')
     homework_name = homework['homework_name']
     homework_status = homework['status']
     if homework_status not in HOMEWORK_STATUSES:
         raise Exception('Некорректный статус домашней работы')
 
     verdict = HOMEWORK_STATUSES[homework_status]
-
-
-    ...
-
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
 def check_tokens():
-    """Проверка наличия обязательных переменных окружения"""
+    """Проверка наличия обязательных переменных окружения."""
     if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         return True
 
@@ -108,28 +105,26 @@ def main():
         exit()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
-
-    ...
-
+    error_message = ''
+    homework_status = ''
     while True:
         try:
             response = get_api_answer(current_timestamp)
             current_timestamp = response.get('current_date')
             homework = check_response(response)
             message = parse_status(homework)
-        except requests.ConnectionError as error:
-            message = f'Не удалось соединиться с эндпоинтом. Ошибка: {error}'
+            if message != homework_status:
+                send_message(bot, message)
+                homework_status = message
+            time.sleep(RETRY_TIME)
+        except Exception as error:
+            message = f'Ошибка: {error}'
             logger.error(message, exc_info=True)
-            time.sleep(RETRY_TIME)
-        try:
-
-            send_message(bot, message)
-            time.sleep(RETRY_TIME)
-        except:
-            ...
-
-        else:
-            ...
+            new_error_message = str(error)
+            if new_error_message != error_message:
+                send_message(bot, new_error_message)
+                error_message = new_error_message
+        time.sleep(RETRY_TIME)
 
 
 if __name__ == '__main__':
