@@ -65,6 +65,8 @@ def check_response(response):
         raise TypeError('Ответ API отличен от словаря')
     try:
         homeworks = response.get('homeworks')
+        if type(homeworks) is not list:
+            raise TypeError('Ответ API отличен от списка')
     except KeyError:
         logger.error('Ошибка словаря по ключу homeworks')
         raise KeyError('Ошибка словаря по ключу homeworks')
