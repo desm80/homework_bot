@@ -1,5 +1,6 @@
 import os
 import time
+from pprint import pprint
 
 import requests
 import telegram
@@ -30,7 +31,7 @@ def send_message(bot, message):
 
 def get_api_answer(current_timestamp):
     timestamp = current_timestamp or int(time.time())
-    params = {'from_date': timestamp-5000000}
+    params = {'from_date': timestamp-3000000}
     try:
         homework_statuses = requests.get(
             ENDPOINT, headers=HEADERS, params=params
@@ -39,21 +40,23 @@ def get_api_answer(current_timestamp):
         print(error)
 
     homework_statuses = homework_statuses.json()
+
     return homework_statuses
 
 
 def check_response(response):
-
-    ...
+    homework = response.get('homeworks')[0]
+    return homework
 
 
 def parse_status(homework):
-    homework_name = ...
-    homework_status = ...
+    homework_name = homework['lesson_name']
+    homework_status = homework['status']
+    if homework_status not in HOMEWORK_STATUSES:
+        raise Exception('Некорректный статус домашней работы')
 
-    ...
+    verdict = HOMEWORK_STATUSES[homework['status']]
 
-    verdict = ...
 
     ...
 
@@ -61,7 +64,8 @@ def parse_status(homework):
 
 
 def check_tokens():
-    return True
+    if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+        return True
 
 
 def main():
