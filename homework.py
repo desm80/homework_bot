@@ -114,15 +114,16 @@ def main():
     while True:
         try:
             response = get_api_answer(current_timestamp)
+            current_timestamp = response.get('current_date')
             homework = check_response(response)
+            message = parse_status(homework)
         except requests.ConnectionError as error:
             message = f'Не удалось соединиться с эндпоинтом. Ошибка: {error}'
             logger.error(message, exc_info=True)
             time.sleep(RETRY_TIME)
         try:
-            message = parse_status(homework)
+
             send_message(bot, message)
-            current_timestamp = response.get('current_date')
             time.sleep(RETRY_TIME)
         except:
             ...
