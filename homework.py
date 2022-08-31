@@ -36,6 +36,7 @@ HOMEWORK_STATUSES = {
 
 
 def send_message(bot, message):
+    """Отправка сообщения со статусом ДЗ в чат телеграмм."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Отправленно сообщение: {message}')
@@ -45,6 +46,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(current_timestamp):
+    """Получение ответа от API ЯП о ДЗ."""
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     try:
@@ -61,6 +63,7 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
+    """Проверка содержимого ответа API на соответствие ТЗ."""
     if type(response) is not dict:
         raise TypeError('Ответ API отличен от словаря')
     try:
@@ -79,6 +82,7 @@ def check_response(response):
 
 
 def parse_status(homework):
+    """Подготовка сообщения со статусом ДЗ."""
     if 'homework_name' not in homework:
         raise KeyError('Отсутствует ключ "homework_name" в ответе API')
     if 'status' not in homework:
