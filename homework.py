@@ -2,10 +2,13 @@ import logging
 import os
 import sys
 import time
+from http import HTTPStatus
 
 import requests
 import telegram
 from dotenv import load_dotenv
+
+from settings import ENDPOINT, HOMEWORK_STATUSES, RETRY_TIME
 
 load_dotenv()
 
@@ -22,22 +25,13 @@ logger.addHandler(handler)
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-
-RETRY_TIME = 600
-ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
-
-
-HOMEWORK_STATUSES = {
-    'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
-    'reviewing': 'Работа взята на проверку ревьюером.',
-    'rejected': 'Работа проверена: у ревьюера есть замечания.'
-}
 
 
 def send_message(bot, message):
     """Отправка сообщения со статусом ДЗ в чат телеграмм."""
     try:
+        logger.info(f'Начало попытки отправить сообщение: {message}')
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Отправленно сообщение: {message}')
     except Exception as error:
@@ -53,11 +47,11 @@ def get_api_answer(current_timestamp):
         homework_statuses = requests.get(
             ENDPOINT, headers=HEADERS, params=params
         )
+        logger.info('Отправлен запрос к API для получения статуса ДЗ')
     except Exception as error:
         logger.error(f'Недоступен эндпоинт. Ошибка: {error}')
         raise Exception(f'Недоступен эндпоинт. Ошибка: {error}')
-    if homework_statuses.status_code != 200:
-        logger.error(f'Ошибка доступа к API {homework_statuses.status_code}')
+    if homework_statuses.status_code != HTTPStatus.OK:
         raise requests.ConnectionError(homework_statuses.status_code)
     return homework_statuses.json()
 
