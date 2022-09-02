@@ -44,12 +44,12 @@ def get_api_answer(current_timestamp):
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     try:
+        logger.info('Попытка отправки запроса к API')
         homework_statuses = requests.get(
             ENDPOINT, headers=HEADERS, params=params
         )
         logger.info('Отправлен запрос к API для получения статуса ДЗ')
     except Exception as error:
-        logger.error(f'Недоступен эндпоинт. Ошибка: {error}')
         raise Exception(f'Недоступен эндпоинт. Ошибка: {error}')
     if homework_statuses.status_code != HTTPStatus.OK:
         raise requests.ConnectionError(homework_statuses.status_code)
@@ -65,12 +65,10 @@ def check_response(response):
         if type(homeworks) is not list:
             raise TypeError('Ответ API отличен от списка')
     except KeyError:
-        logger.error('Ошибка словаря по ключу homeworks')
         raise KeyError('Ошибка словаря по ключу homeworks')
     try:
         homework = homeworks[0]
     except IndexError:
-        logger.error('Список домашних работ пуст')
         raise IndexError('Список домашних работ пуст')
     return homework
 
